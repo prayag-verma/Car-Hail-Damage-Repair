@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Analysis Results</h1>
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Damage Probability</th>
+                <th>Damage Area</th>
+                <th>Calculated Force</th>
+                <th>Device Adjustment</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>
+                    <img src="{{ url_for('uploaded_file', filename=result[1].split('\\')[-1]) }}"
+                         alt="Damage Image" width="100" height="100"
+                         class="damage-image" onclick="openModal(this.src)">
+                </td>
+                <td>{{ "%.2f"|format(result[2] * 100) }}%</td>
+                <td>{{ "%.2f"|format(result[3]) }} px²</td>
+                <td>{{ "%.2f"|format(result[4]) }} N</td>
+                <td>{{ result[5] }}</td>
+                <td>{{ result[6] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div id="imageModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="modalImage">
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function openModal(imgSrc) {
+        var modal = document.getElementById("imageModal");
+        var modalImg = document.getElementById("modalImage");
+        modal.style.display = "block";
+        modalImg.src = imgSrc;
+    }
+
+    var span = document.getElementsByClassName("close")[0];
+    span.onclick = function() {
+        document.getElementById("imageModal").style.display = "none";
+    }
+</script>
+{% endblock %}

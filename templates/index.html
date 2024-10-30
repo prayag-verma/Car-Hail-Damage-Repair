@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Hail Damage Repair Analyzer</h1>
+<div class="row">
+    <div class="col-md-6">
+        <form id="upload-form" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="file" class="form-label">Upload Image</label>
+                <input class="form-control" type="file" id="file" name="file" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Analyze Damage</button>
+        </form>
+    </div>
+    <div class="col-md-6">
+        <div id="result" class="mt-4"></div>
+    </div>
+</div>
+
+<!-- Custom Modal -->
+<div id="customModal" class="custom-modal">
+    <div class="custom-modal-content">
+        <span class="close-button">&times;</span>
+        <h2 id="modalTitle">Analyzing Damage</h2>
+        <div id="analysisProgress">
+            <div class="spinner"></div>
+            <p>Processing image...</p>
+        </div>
+        <div id="analysisResult" style="display: none;">
+            <img id="analyzedImage" src="" alt="Analyzed image" class="img-fluid mb-3">
+            <p id="damageProbability"></p>
+            <p id="calculatedForce"></p>
+            <p id="deviceAdjustment"></p>
+        </div>
+        <button id="closeModal" class="btn btn-secondary mt-3">Close</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('customModal');
+    const closeButton = document.getElementsByClassName('close-button')[0];
+    const closeModalButton = document.getElementById('closeModal');
+    const uploadForm = document.getElementById('upload-form');
+    const analysisProgress = document.getElementById('analysisProgress');
+    const analysisResult = document.getElementById('analysisResult');
+
+    function openModal() {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // Prevent scrolling
+    }
+
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto'; // Allow scrolling
+    }
+
+    closeButton.onclick = closeModal;
+    closeModalButton.onclick = closeModal;
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
+    uploadForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+
+        // Show the modal and reset its content
+        analysisProgress.style.display = 'block';
+        analysisResult.style.display = 'none';
+        openModal();
+
+        fetch('/', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Simulate a delay to show the animation (remove this in production)
+            setTimeout(() => {
+                analysisProgress.style.display = 'none';
+                analysisResult.style.display = 'block';
+
+                if (data.damage_detected) {
+                    document.getElementById('analyzedImage').src = data.image_url;
+                    document.getElementById('damageProbability').textContent = `Damage detected with ${(data.damage_probability * 100).toFixed(2)}% probability`;
+                    document.getElementById('calculatedForce').textContent = `Calculated force: ${data.calculated_force.toFixed(2)} N`;
+                    document.getElementById('deviceAdjustment').textContent = data.device_adjustment;
+                } else {
+                    analysisResult.innerHTML = '<p class="alert alert-info">No significant damage detected</p>';
+                }
+            }, 2000); // 2 second delay, adjust as needed
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            analysisProgress.style.display = 'none';
+            analysisResult.innerHTML = '<p class="alert alert-danger">An error occurred during analysis.</p>';
+        });
+    });
+});
+</script>
+{% endblock %}
