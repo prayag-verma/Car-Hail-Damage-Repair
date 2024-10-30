@@ -3,8 +3,11 @@ Welcome to the Car Hail Damage Repair Project! This initiative harnesses the pow
 
 # What’s Inside:
 **User-Friendly Web App:** Built with Flask, our app allows users to easily upload images of damaged cars.
+
 **Smart Image Processing:** Using OpenCV and Pillow, we analyze photos to identify and assess hail damage efficiently.
+
 **Machine Learning Insights:** With TensorFlow, we provide intelligent analysis on the severity of the damage and suggest potential repair options.
+
 **Data Handling Made Easy:** NumPy helps us manage and process the image data seamlessly.
 
 # Why It Matters:
